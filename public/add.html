@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+	<!-- Favico -->
+	<link rel="shortcut icon" type="image/png" href="https://govtjobguru.in/wp-content/uploads/2018/11/NIT-Kurukshetra.png">
+
+	<title>URL Shortener</title>
+
+	<!-- Materialize -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+	<!-- jquery -->
+	<script
+		src="https://code.jquery.com/jquery-3.4.1.js"
+		integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+		crossorigin="anonymous">
+	</script>
+
+</head>
+<body>
+	
+	<div class="container">
+
+		<div class="row center">
+			<h1>URL Shortener</h1>
+		</div>
+
+	
+		<div class="row">
+
+			<div class="input-field col s12">
+				<i class="material-icons prefix">spa</i>
+				<input id="originalUrl" type="text" class="validate">
+				<label for="originalUrl">Long URL</label>
+			</div>
+
+
+			<button onclick="shortenUrl()" class="col s4 m4 l4 offset-s4 offset-m4 offset-l4 waves-effect waves-light btn">
+				<i class="material-icons right">cloud</i>
+				SHORTEN URL
+			</button>
+
+		</div>
+	
+		<div class="row hide" id="message">
+
+			<p id="userText"></p>
+			<a id="link" href="" target="_blank"></a>
+
+		</div>
+
+	</div>
+
+	<script>
+	
+		function shortenUrl() {
+
+			let longUrl = $('#originalUrl').val().trim();
+
+			if(longUrl.length === 0) {
+				alert('Enter Long url');
+				return;
+			}
+
+			let link = document.getElementById('link');
+			$.ajax({
+				url: 'http://localhost:9000/url/add',
+				type: 'POST',
+				data: {
+					'originalUrl': longUrl
+				},
+				success: function (result, status) {
+					
+					let message = null;
+					if(result['success'] === true) {
+
+						let url = window.location.origin + '/' + result['data']['urlCode'];
+
+						link.setAttribute('href', url);
+						link.innerText = url;
+						
+						$('#userText').text('Url is shortened to: ');
+						$('#message').removeClass('hide');
+					
+					} else {
+
+						$('#userText').text('Sorry ! couldn\'t shorten. Please Try Again');
+						link.innerText = '';
+						$('#message').removeClass('hide');
+					}
+						
+				},
+				error: function (err) {
+					
+					$('#userText').text(err['responseJSON']['message']);
+					link.innerText = '';
+					$('#message').removeClass('hide');
+					console.log(err);
+					
+					return;
+				}
+			})
+		}
+	
+	</script>
+
+</body>
+</html>
